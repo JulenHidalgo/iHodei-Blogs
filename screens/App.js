@@ -1,47 +1,103 @@
 import React, { useState, useEffect } from "react";
 import { View, Image, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import BuscarBlogs_hc from "./BuscarBlogs_hc";
-import BuscarBlogs from "./BuscarBlogs";
-import DetallesPost from "./DetallesPost";
+import { createStackNavigator } from "@react-navigation/stack"; // Asegúrate de que esta importación esté correcta
+import { Provider as PaperProvider } from "react-native-paper";
+import SignIn from "./SignIn";
+import Selector from "./Selector";
+import CrearPost from "./CrearPost";
+import Ayuda from "./Ayuda";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const Stack = createStackNavigator();
+// Función para obtener los datos del usuario desde AsyncStorage
+const obtenerDatosUsuario = async () => {
+  const datosGuardados = await AsyncStorage.getItem("datosUsuario");
 
+  if (datosGuardados !== null) {
+    const datos = JSON.parse(datosGuardados);
+    return datos;
+  }
+
+  return null;
+};
+
+// Crear la pila de navegación
+const Stack = createStackNavigator(); // Definir la variable Stack correctamente
+
+// Pantalla de bienvenida (SplashScreen)
 const SplashScreen = ({ navigation }) => {
+  const [base64Image, setBase64Image] = useState(null);
+
   useEffect(() => {
-    setTimeout(() => {
-      navigation.replace("Blogs"); // Cambia a la pantalla de blogs
-    }, 3000);
+    const obtenerImagen = async () => {
+      const datos = await obtenerDatosUsuario();
+      if (datos?.imagen) {
+        // Usar la base64 directamente sin descompresión
+        setBase64Image(datos.imagen);
+      }
+    };
+
+    obtenerImagen();
+  }, []);
+
+  useEffect(() => {
+    const verificarSesion = async () => {
+      try {
+        const datos = await obtenerDatosUsuario();
+        if (datos) {
+          navigation.replace("Selector");
+        } else {
+          navigation.replace("SignIn");
+        }
+      } catch (error) {
+        console.error("Error al obtener los datos del usuario:", error);
+        navigation.replace("SignIn"); // En caso de error, ir a la pantalla de SignIn
+      }
+    };
+
+    setTimeout(verificarSesion, 3000);
   }, []);
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require("../assets/logoA1.png")}
-        style={styles.logo}
-        resizeMode="contain"
-      />
+      {base64Image ? (
+        <Image
+          source={{ uri: `data:image/png;base64,${base64Image}` }} // Usar la base64 directamente
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      ) : (
+        // Si no se encuentra la base64 en AsyncStorage, se carga la imagen por defecto desde assets
+        <Image
+          source={require("../assets/HodeiBLANCO72.png")} // Ruta de la imagen por defecto
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      )}
     </View>
   );
 };
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Splash" component={SplashScreen} />
-        <Stack.Screen name="Blogs" component={BuscarBlogs_hc} />
-        <Stack.Screen name="Detalles" component={DetallesPost} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <PaperProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Splash" component={SplashScreen} />
+          <Stack.Screen name="SignIn" component={SignIn} />
+          <Stack.Screen name="Selector" component={Selector} />
+          <Stack.Screen name="CrearPost" component={CrearPost} />
+          <Stack.Screen name="Ayuda" component={Ayuda} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </PaperProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#044F8B",
     justifyContent: "center",
     alignItems: "center",
   },
