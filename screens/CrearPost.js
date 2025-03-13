@@ -31,6 +31,7 @@ const CrearPost = ({ route }) => {
   const [inputCategoria, setInputCategoria] = useState("");
   const { origen } = route.params || {};
   const [urlWeb, setUrlWeb] = useState("");
+  const [user, setUser] = useState("");
 
   useEffect(() => {
     const obtenerInfo = async () => {
@@ -38,7 +39,10 @@ const CrearPost = ({ route }) => {
         const datos = await obtenerDatosUsuario();
         if (datos?.imagen) setBase64Image(datos.imagen);
         if (datos?.url) {
-          setUrlWeb(datos.url); // ✅ Actualiza el estado de urlWeb
+          setUrlWeb(datos.url);
+        }
+        if (datos?.user) {
+          setUser(datos.user);
         }
       } catch (error) {
         console.error("Error obteniendo datos del usuario:", error);
@@ -48,12 +52,11 @@ const CrearPost = ({ route }) => {
     obtenerInfo();
   }, []);
 
-  // ✅ Nuevo useEffect para asegurarnos de que urlWeb no está vacío antes de llamar a obtenerCategorias
   useEffect(() => {
     if (urlWeb) {
       obtenerCategorias();
     }
-  }, [urlWeb]); // ✅ Solo ejecutará obtenerCategorias cuando urlWeb cambie y tenga un valor real
+  }, [urlWeb]);
 
   const obtenerDatosUsuario = async () => {
     const datosGuardados = await AsyncStorage.getItem("datosUsuario");
@@ -130,7 +133,7 @@ const CrearPost = ({ route }) => {
       Alert.alert("Error", "Los dos campos tienen que contener información.");
     } else {
       const post = new Post(
-        null,
+        user,
         null,
         urlWeb,
         null,
