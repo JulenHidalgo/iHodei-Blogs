@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Image, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack"; // Asegúrate de que esta importación esté correcta
+import { createStackNavigator } from "@react-navigation/stack";
 import { Provider as PaperProvider } from "react-native-paper";
 import SignIn from "./SignIn";
 import Selector from "./Selector";
@@ -9,30 +9,32 @@ import CrearPost from "./CrearPost";
 import Ayuda from "./Ayuda";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Función para obtener los datos del usuario desde AsyncStorage
+// Se comprueba si hay datos guardados en la AsyncStore
 const obtenerDatosUsuario = async () => {
   const datosGuardados = await AsyncStorage.getItem("datosUsuario");
 
+  // Si hay datos significa que ya está registrado el usuario
   if (datosGuardados !== null) {
     const datos = JSON.parse(datosGuardados);
     return datos;
   }
 
+  // Si no está registrado tiene que iniciar sesión
   return null;
 };
 
 // Crear la pila de navegación
-const Stack = createStackNavigator(); // Definir la variable Stack correctamente
+const Stack = createStackNavigator();
 
-// Pantalla de bienvenida (SplashScreen)
+// Se crea la pantalla de "carga" que se ejecuta drante tres segundos al iniciar la app
 const SplashScreen = ({ navigation }) => {
   const [base64Image, setBase64Image] = useState(null);
 
   useEffect(() => {
+    // Si el dispositivo ya está registrado se utiliza su imagen
     const obtenerImagen = async () => {
       const datos = await obtenerDatosUsuario();
       if (datos?.imagen) {
-        // Usar la base64 directamente sin descompresión
         setBase64Image(datos.imagen);
       }
     };
@@ -41,6 +43,7 @@ const SplashScreen = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
+    // Si ya está registrado, se le llevara directamente al Selector de opciones, si no, se le pedirá que se registre
     const verificarSesion = async () => {
       try {
         const datos = await obtenerDatosUsuario();
@@ -50,26 +53,29 @@ const SplashScreen = ({ navigation }) => {
           navigation.replace("SignIn");
         }
       } catch (error) {
-        console.error("Error al obtener los datos del usuario:", error);
-        navigation.replace("SignIn"); // En caso de error, ir a la pantalla de SignIn
+        //En caso de cualquier error, se le redirige a la ventana de inicio de sesión
+        navigation.replace("SignIn");
       }
     };
 
+    // Durante tres segundos aparece la SplashScreen
     setTimeout(verificarSesion, 3000);
   }, []);
 
+  // Se define el diseño de la ventana
   return (
     <View style={styles.container}>
       {base64Image ? (
+        // Si se encuentra la imagen en AsyncStorage, se carga la imagen personalizada
         <Image
-          source={{ uri: `data:image/png;base64,${base64Image}` }} // Usar la base64 directamente
+          source={{ uri: `data:image/png;base64,${base64Image}` }}
           style={styles.logo}
           resizeMode="contain"
         />
       ) : (
         // Si no se encuentra la base64 en AsyncStorage, se carga la imagen por defecto desde assets
         <Image
-          source={require("../assets/HodeiBLANCO72.png")} // Ruta de la imagen por defecto
+          source={require("../assets/HodeiBLANCO72.png")}
           style={styles.logo}
           resizeMode="contain"
         />
@@ -78,6 +84,7 @@ const SplashScreen = ({ navigation }) => {
   );
 };
 
+// Se define la función principal de la aplicación, que contiene la pila de navegación
 export default function App() {
   return (
     <PaperProvider>
@@ -94,6 +101,7 @@ export default function App() {
   );
 }
 
+// Se le asigna el estilo a la ventana
 const styles = StyleSheet.create({
   container: {
     flex: 1,

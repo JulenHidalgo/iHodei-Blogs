@@ -4,34 +4,35 @@
     "slug": "BLOGS",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/Icono-ihodei.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/HodeiBLANCO72.png",
+      "image": "./assets/Icono-ihodei.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.julenhidalgo.BLOGS.ios",
+      "bundleIdentifier": "com.julenhidalgoo.BLOGS.ios",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/Icono-ihodei.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.julenhidalgo.BLOGS.android"
+      "package": "com.julenhidalgoo.BLOGS.android"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/Icono-ihodei.png"
     },
+    "owner": "julenhidalgoo",
     "extra": {
       "eas": {
-        "projectId": "54edf09f-fe6a-4d43-9c3b-a764bc9bbba5"
+        "projectId": "a1fe6c25-1e18-4885-890f-175af5d197e1"
       }
     }
   }

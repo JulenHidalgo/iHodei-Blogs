@@ -21,19 +21,21 @@ import Post from "../model/Post";
 import Propiedades from "../config/Propiedades";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+// Pantalla para crear un post
 const CrearPost = ({ route }) => {
-  const [contenido, setContenido] = useState("");
-  const [base64Image, setBase64Image] = useState(null);
-  const navigation = useNavigation();
-  const [categorias, setCategorias] = useState([]); // Estado para almacenar las categorías
-  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
-  const [menuVisible, setMenuVisible] = useState(false);
-  const [inputCategoria, setInputCategoria] = useState("");
-  const { origen } = route.params || {};
-  const [urlWeb, setUrlWeb] = useState("");
-  const [user, setUser] = useState("");
+  const [contenido, setContenido] = useState(""); // Contenido sobre el que se va a crear el post, el enlace o la pregunta
+  const [base64Image, setBase64Image] = useState(null); // Imagen del usuario
+  const navigation = useNavigation(); // Hook para la navegación
+  const [categorias, setCategorias] = useState([]); // Categorías guardadas en el blog
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null); // Categoría seleccionada
+  const [menuVisible, setMenuVisible] = useState(false); // Boolean para saber si se está mostrando el menú modal de categorias
+  const [inputCategoria, setInputCategoria] = useState(""); // Input para la categoría
+  const { origen } = route.params || {}; // Origen del post, si es para crear desde URL o una pregunta
+  const [urlWeb, setUrlWeb] = useState(""); // URL de la web del usuario
+  const [user, setUser] = useState(""); // Nombre de usuario
 
   useEffect(() => {
+    // Se obtienen los datos del usuario guardados en la AsyncStorage y se guardan en sus respectivas variables
     const obtenerInfo = async () => {
       try {
         const datos = await obtenerDatosUsuario();
@@ -53,11 +55,14 @@ const CrearPost = ({ route }) => {
   }, []);
 
   useEffect(() => {
+    // Solo se obtienen las categorías si urlWeb tiene información, se espera a que se reciba la informacion de la AsyncStorage
+    // para prevenir errores
     if (urlWeb) {
       obtenerCategorias();
     }
   }, [urlWeb]);
 
+  // Se obtienen los datos del usuario guardados en la AsyncStorage
   const obtenerDatosUsuario = async () => {
     const datosGuardados = await AsyncStorage.getItem("datosUsuario");
 
@@ -69,17 +74,20 @@ const CrearPost = ({ route }) => {
     return null;
   };
 
+  // Método para manejar el cambio de la categoría
   const manejarCambioCategoria = (texto) => {
     setInputCategoria(texto);
     setCategoriaSeleccionada(new Categoria(null, texto));
   };
 
+  // Método para seleccionar una categoría
   const seleccionarCategoria = (categoria) => {
     setCategoriaSeleccionada(categoria);
-    setInputCategoria(categoria.name); // Mostrar el nombre en el campo de entrada
+    setInputCategoria(categoria.name);
     setMenuVisible(false);
   };
 
+  // Método para obtener las categorías del blog
   const obtenerCategorias = async () => {
     try {
       const post = new Post(
@@ -107,31 +115,40 @@ const CrearPost = ({ route }) => {
 
       const datos = await respuesta.json();
 
-      // 🔹 Verifica que `datos` es un array y extrae `id` y `name`
+      // Verifica que `datos` es un array y extrae únicamente `id` y `name` de cada elemento
       if (Array.isArray(datos)) {
         const categoriasRecibidas = datos.map((item) => ({
           id: item.id,
           name: item.name,
         }));
 
-        // 🔹 Guardar las categorías en el estado
+        // Guardar las categorías en la variable Categorias
         setCategorias(categoriasRecibidas);
       } else {
         console.error("Error: La estructura de datos no es un array.");
       }
     } catch (error) {
+      // Si sucede algún error, se muestra en consola
       console.error("Error al obtener categorías:", error);
+      Alert.alert(
+        "Error",
+        "No se pudieron obtener las categorías, intenta cerrar y abrir de nuevo la aplicación."
+      );
     }
   };
 
+  // Método para crear un post
   const crearPost = async () => {
+    // Si la categoría no existe, se crea una nueva
     const nuevaCategoria =
       categorias.find((c) => c.id === categoriaSeleccionada?.id) ||
       new Categoria(null, inputCategoria);
 
+    // Se comprueba que los campos no estén vacíos
     if (categoriaSeleccionada.name === "" || contenido === "") {
       Alert.alert("Error", "Los dos campos tienen que contener información.");
     } else {
+      // Se crea un objeto Post con los datos del usuario
       const post = new Post(
         user,
         null,
@@ -142,7 +159,7 @@ const CrearPost = ({ route }) => {
         categoriaSeleccionada?.name,
         "CREATE_POST"
       );
-
+      // Se añade el contenido del post dependiendo de el origen, si es una URL o una pregunta
       if (origen === "url") {
         post.url_post = contenido;
       } else {
@@ -151,6 +168,7 @@ const CrearPost = ({ route }) => {
 
       const jsonString = JSON.stringify(post);
       try {
+        // Se realiza la petición POST a el webhook de Make
         const respuesta = await fetch(Propiedades.URL_MAKE, {
           method: "POST",
           headers: {
@@ -159,10 +177,11 @@ const CrearPost = ({ route }) => {
           body: jsonString,
         });
 
+        // Si la respuesta no es un 200, se muestra un error
         if (!respuesta.ok) {
           throw new Error(`Error en la petición: ${respuesta.status}`);
         }
-
+        // Si todo ha ido correctamente se notifica al usuario y se le redirige a la pantalla de selección
         const resultado = await respuesta.text();
         Alert.alert(
           "Éxito",
@@ -170,6 +189,7 @@ const CrearPost = ({ route }) => {
         );
         navigation.navigate("Selector");
       } catch (error) {
+        // Si sucede cualquier error se notifica al usuario
         console.error("Error al enviar los datos:", error);
         Alert.alert(
           "Error",
@@ -179,26 +199,30 @@ const CrearPost = ({ route }) => {
     }
   };
 
+  // Estructura de la pantalla
   return (
     <KeyboardAvoidingView
+      // Se ajusta el teclado para que no tape los campos de texto
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={styles.fullScreen}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
+          // Si se pulsa fuera de los campos de texto, se cierra el teclado
           contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.logoContainer}>
             {base64Image ? (
+              // Si se encuentra la base64 en AsyncStorage, se carga la imagen personalizada
               <Image
-                source={{ uri: `data:image/png;base64,${base64Image}` }} // Usamos la base64 correctamente
+                source={{ uri: `data:image/png;base64,${base64Image}` }}
                 style={styles.logo}
               />
             ) : (
               // Si no se encuentra la base64 en AsyncStorage, se carga la imagen por defecto desde assets
               <Image
-                source={require("../assets/HodeiBLANCO72.png")} // Ruta de la imagen por defecto
+                source={require("../assets/HodeiBLANCO72.png")}
                 style={styles.logo}
                 resizeMode="contain"
               />
@@ -207,6 +231,7 @@ const CrearPost = ({ route }) => {
           <View style={styles.formContainer}>
             <TextInput
               mode="outlined"
+              // Se customiza la ventana en base a el origen, si se quiere desde url o pregunta
               label={origen === "url" ? "Enlace" : "Pregunta"}
               keyboardType={origen === "url" ? "url" : "default"}
               value={contenido}
@@ -224,11 +249,10 @@ const CrearPost = ({ route }) => {
               <IconButton
                 icon="chevron-down"
                 size={24}
-                onPress={() => setMenuVisible(true)} // Al hacer clic, se muestra el modal
+                onPress={() => setMenuVisible(true)}
               />
             </View>
 
-            {/* Modal con las categorías */}
             <Modal visible={menuVisible} transparent animationType="fade">
               <View style={styles.modalOverlay}>
                 <View style={styles.modalContainer}>
@@ -238,7 +262,7 @@ const CrearPost = ({ route }) => {
                     renderItem={({ item }) => (
                       <TouchableOpacity
                         style={styles.optionItem}
-                        onPress={() => seleccionarCategoria(item)} // Al seleccionar una categoría, se cierra el modal
+                        onPress={() => seleccionarCategoria(item)}
                       >
                         <Text
                           style={[styles.optionText, { textAlign: "center" }]}
@@ -250,7 +274,7 @@ const CrearPost = ({ route }) => {
                   />
                   <TouchableOpacity
                     style={styles.closeButton}
-                    onPress={() => setMenuVisible(false)} // Cerrar el modal
+                    onPress={() => setMenuVisible(false)}
                   >
                     <Text style={styles.closeButtonText}>Cerrar</Text>
                   </TouchableOpacity>
@@ -268,6 +292,7 @@ const CrearPost = ({ route }) => {
   );
 };
 
+// Estilos de la pantalla
 const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,

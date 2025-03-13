@@ -11,14 +11,16 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Ionicons } from "@expo/vector-icons"; // Importar iconos de Expo
+import { Ionicons } from "@expo/vector-icons";
 
+// Pantalla de selección de opciones
 const Selector = () => {
-  const navigation = useNavigation();
-  const [base64Image, setBase64Image] = useState(null);
-  const [menuVisible, setMenuVisible] = useState(false); // Estado para mostrar el menú
+  const navigation = useNavigation(); // Hook para la navegación
+  const [base64Image, setBase64Image] = useState(null); // Imagen del usuario
+  const [menuVisible, setMenuVisible] = useState(false); // Menú modal para ayuda y cerrar sesión
 
   useEffect(() => {
+    // Si el dispositivo ya está registrado se recoge su imagen
     const obtenerImagen = async () => {
       const datos = await obtenerDatosUsuario();
       if (datos?.imagen) {
@@ -29,6 +31,7 @@ const Selector = () => {
     obtenerImagen();
   }, []);
 
+  // Se recogen los datos del usuario guardado en la AsyncStore
   const obtenerDatosUsuario = async () => {
     try {
       const datosGuardados = await AsyncStorage.getItem("datosUsuario");
@@ -39,16 +42,19 @@ const Selector = () => {
     }
   };
 
+  // Método para cerrar sesión
   const cerrarSesion = async () => {
     try {
+      // Borra la información del usuario de la AsyncStore
       await AsyncStorage.removeItem("datosUsuario");
-      console.log("✅ Sesión cerrada.");
+      console.log("Sesión cerrada.");
       navigation.navigate("SignIn"); // Navegar a la pantalla de inicio de sesión
     } catch (error) {
-      console.error("❌ Error al cerrar sesión:", error);
+      console.error("Error al cerrar sesión:", error);
     }
   };
 
+  // Método para abrir la web del usuario, si no esta bien guardada o sucede algun error se notifica
   const abrirMiWeb = async () => {
     try {
       const datos = await obtenerDatosUsuario();
@@ -62,9 +68,9 @@ const Selector = () => {
     }
   };
 
+  // Diseño de la pantalla
   return (
     <View style={styles.container}>
-      {/* Ícono de Engranaje en la parte superior */}
       <TouchableOpacity
         style={styles.settingsIcon}
         onPress={() => setMenuVisible(true)}
@@ -90,12 +96,14 @@ const Selector = () => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.button}
+          // Navegar a la pantalla de creación de post, diciendole el origen para diferenciar entre las dos posibilidades
           onPress={() => navigation.navigate("CrearPost", { origen: "url" })}
         >
           <Text style={styles.buttonText}>ENLACE DE UNA PÁGINA</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.button}
+          // Navegar a la pantalla de creación de post, diciendole el origen para diferenciar entre las dos posibilidades
           onPress={() =>
             navigation.navigate("CrearPost", { origen: "pregunta" })
           }
@@ -107,7 +115,6 @@ const Selector = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Menú Modal */}
       <Modal visible={menuVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
@@ -144,6 +151,7 @@ const Selector = () => {
   );
 };
 
+// Estilos de la pantalla
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -181,8 +189,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
-
-  // Estilos para el menú modal
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
