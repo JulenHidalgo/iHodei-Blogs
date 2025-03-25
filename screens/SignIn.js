@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TextInput, Button } from "react-native-paper";
+import { TextInput } from "react-native-paper";
 import {
   View,
   Image,
@@ -18,21 +18,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Post from "../model/Post";
 import Propiedades from "../config/Propiedades";
 
-// Pantalla de inicio de sesión
 const SignIn = () => {
-  const [user, setUser] = useState(""); // Nombre de usuario
-  const [passwd, setPasswd] = useState(""); // Contraseña
-  const navigation = useNavigation(); // Hook para la navegación
+  const [user, setUser] = useState("");
+  const [passwd, setPasswd] = useState("");
 
-  // Metodo para guardar los datos del usuario en la AsyncStorage
+  const navigation = useNavigation(); // Hook para manejar la navegación
+
   const guardarDatosUsuario = async (user, url, imagen) => {
     try {
-      const datos = {
-        user,
-        url,
-        imagen,
-      };
-      // Se guardan los datos en formato de JSON
+      const datos = { user, url, imagen };
       await AsyncStorage.setItem("datosUsuario", JSON.stringify(datos));
       console.log("Datos guardados correctamente");
     } catch (error) {
@@ -40,14 +34,10 @@ const SignIn = () => {
     }
   };
 
-  // Metodo para iniciar sesión
   const login = async () => {
-    // Se comprueba que los campos no estén vacíos
     if (user === "" || passwd === "") {
-      // Se notifica si están vacíos
-      Alert.alert("Error", "Los campos no pueden estar vacios");
+      Alert.alert("Error", "Los campos no pueden estar vacíos");
     } else {
-      // Se crea un objeto Post con los datos del usuario
       const post = new Post(
         user,
         passwd,
@@ -58,10 +48,9 @@ const SignIn = () => {
         null,
         "LOG_IN"
       );
-      // Se convierte el objeto a JSON
+
       const jsonString = JSON.stringify(post);
       try {
-        // Se realiza la petición POST a el webhook de Make
         const respuesta = await fetch(Propiedades.URL_MAKE, {
           method: "POST",
           headers: {
@@ -70,7 +59,6 @@ const SignIn = () => {
           body: jsonString,
         });
 
-        //Si la respuesta es un 200, se guarfan los datos del usuario y se redirige a la pantalla de selección
         if (respuesta.status === 200) {
           const resultado = await respuesta.json();
           const { url, imagen } = resultado;
@@ -83,29 +71,24 @@ const SignIn = () => {
           );
 
           navigation.replace("Selector");
-
-          // Si la respuesta es un 400, se notifica que los datos son incorrectos
         } else if (respuesta.status === 400) {
           console.warn("Error: Solicitud incorrecta (400)");
           Alert.alert("Error", "El usuario o la contraseña son incorrectos.");
         } else {
-          // Si la respuesta es otro código de error, se notifica
           console.error(`Error inesperado: ${respuesta.status}`);
           Alert.alert("Error", `Error desconocido: ${respuesta.status}`);
         }
       } catch (error) {
-        // Si hay un error en la petición, se notifica
         console.error("Error en la petición:", error);
         Alert.alert("Error", "No se pudieron enviar los datos.");
       }
     }
   };
 
-  // Se define el diseño de la pantalla
   return (
-    // Se crea un contenedor que se ajusta al teclado, para qe se vean bien los campos al escribir
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : "position"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -100}
       style={styles.fullScreen}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -115,7 +98,7 @@ const SignIn = () => {
         >
           <View style={styles.logoContainer}>
             <Image
-              source={require("../assets/HodeiBLANCO72.png")}
+              source={require("../assets/HodeiBLANCO72.png")} // Ruta de la imagen por defecto
               style={styles.logo}
               resizeMode="contain"
             />
@@ -148,7 +131,6 @@ const SignIn = () => {
   );
 };
 
-// Estilos de la pantalla
 const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,

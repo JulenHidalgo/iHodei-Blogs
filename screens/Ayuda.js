@@ -10,18 +10,28 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-// Pantalla de Ayuda
 const Ayuda = () => {
-  const navigation = useNavigation(); // Hook para la navegación
+  const navigation = useNavigation();
 
-  // Método para abrir enlaces en la aplicación correspondiente, o en el navegador
   const abrirEnlace = (url) => {
     Linking.openURL(url).catch((err) =>
       console.error("Error al abrir el enlace:", err)
     );
   };
 
-  // Estructura de la pantalla
+  const enviarCorreo = () => {
+    const email = "hodeicloud2020@gmail.com";
+    const subject = encodeURIComponent(
+      "Consulta sobre la aplicación HodeiCloud"
+    );
+    const body = encodeURIComponent("Hola, necesito ayuda con...");
+    const mailtoURL = `mailto:${email}?subject=${subject}&body=${body}`;
+
+    Linking.openURL(mailtoURL).catch((err) =>
+      console.error("Error al abrir el cliente de correo:", err)
+    );
+  };
+
   return (
     <View style={styles.fullScreen}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -123,6 +133,7 @@ const Ayuda = () => {
           </TouchableOpacity>
         </View>
 
+        {/* Sección Más sobre Nosotros */}
         <View style={styles.contentContainer}>
           <Text style={styles.subtitle}>Más sobre nosotros</Text>
           <View style={styles.socialIconsContainer}>
@@ -157,6 +168,7 @@ const Ayuda = () => {
           </View>
         </View>
 
+        {/* Sección Más sobre Nosotros */}
         <View style={styles.contentContainer}>
           <TouchableOpacity
             onPress={() => abrirEnlace("https://hodeicloud.com/")}
@@ -169,7 +181,6 @@ const Ayuda = () => {
   );
 };
 
-// Estilos de la pantalla
 const styles = StyleSheet.create({
   question: {
     fontSize: 16,

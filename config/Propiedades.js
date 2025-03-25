@@ -1,5 +1,5 @@
 const Propiedades = {
-  URL_MAKE: "https://hook.eu2.make.com/jv3xwfmy826f64lr7l49pd1wy4pw392f",
+  URL_MAKE: "https://hook.eu2.make.com/bpqq3iq33fhqq6umo17dr4l9v98t2ny6",
 };
 
 export default Propiedades;
