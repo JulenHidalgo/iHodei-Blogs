@@ -43,7 +43,7 @@ const Selector = () => {
     try {
       await AsyncStorage.removeItem("datosUsuario");
       console.log("✅ Sesión cerrada.");
-      navigation.navigate("SignIn"); // Navegar a la pantalla de inicio de sesión
+      navigation.replace("SignIn"); // Navegar a la pantalla de inicio de sesión
     } catch (error) {
       console.error("❌ Error al cerrar sesión:", error);
     }
