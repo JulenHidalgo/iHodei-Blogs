@@ -20,17 +20,16 @@
         "foregroundImage": "./assets/icono-iHodei_blancoconfondo.png",
         "backgroundColor": "#044F8B"
       },
-      "package": "com.julenhidalgoo.iHodeiBlogs"
+      "package": "com.hodeicloud.iHodeiBlogs"
     },
     "web": {
       "favicon": "./assets/Icono-ihodei.png"
     },
     "extra": {
       "eas": {
-        "projectId": "e73ccfec-db27-41ad-a573-808f39fac9bd"
+        "projectId": "2005056a-694f-4a8f-837c-ac55e0ef59b9"
       }
     },
-    "owner": "julenhidalgoo"
-  
+    "owner": "hodeicloud"
   }
 }
