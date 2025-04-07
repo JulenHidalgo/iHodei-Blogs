@@ -32,6 +32,7 @@ const CrearPost = ({ route }) => {
   const { origen } = route.params || {};
   const [urlWeb, setUrlWeb] = useState("");
   const [user, setUser] = useState("");
+  const [creando, setCreando] = useState(false);
 
   useEffect(() => {
     const obtenerInfo = async () => {
@@ -137,6 +138,8 @@ const CrearPost = ({ route }) => {
     if (categoriaSeleccionada.name === "" || contenido === "") {
       Alert.alert("Error", "Los dos campos tienen que contener información.");
     } else {
+      setCreando(true); // ⬅️ Activamos el estado de carga
+
       const post = new Post(
         user,
         null,
@@ -180,6 +183,8 @@ const CrearPost = ({ route }) => {
           "Error",
           "No se pudieron enviar los datos, intentalo más tarde."
         );
+      } finally {
+        setCreando(false); // ⬅️ Se desactiva el estado de carga
       }
     }
   };
@@ -264,8 +269,14 @@ const CrearPost = ({ route }) => {
               </View>
             </Modal>
 
-            <TouchableOpacity style={styles.button} onPress={crearPost}>
-              <Text style={styles.buttonText}>CREAR POST</Text>
+            <TouchableOpacity
+              style={[styles.button, creando && { backgroundColor: "#ccc" }]}
+              onPress={crearPost}
+              disabled={creando}
+            >
+              <Text style={styles.buttonText}>
+                {creando ? "Creando post..." : "CREAR POST"}
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
