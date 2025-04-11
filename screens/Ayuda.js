@@ -7,28 +7,30 @@ import {
   Text,
   ScrollView,
   Linking,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 const Ayuda = () => {
+  const enlaces = {
+    instagram: "https://www.instagram.com/ihodei_/",
+    tiktok: "https://www.tiktok.com/@ihodeicloud",
+    linkedin: "https://es.linkedin.com/company/ihodeicloud",
+    web: "https://ihodei.com/",
+    whatsapp: "https://api.whatsapp.com/send?phone=34602216188",
+    email: "hodeicloud2020@gmail.com",
+    facebook: "https://www.facebook.com/iHodei/",
+    youtube: "https://www.youtube.com/channel/UCXu9csa1KbvWv62vx7cCsVA",
+    android:
+      "https://play.google.com/store/apps/dev?id=5086017462633538535&hl=es&",
+    ios: "https://apps.apple.com/es/developer/hodeicloud-sociedad-limitada/id1803574185",
+  };
+
   const navigation = useNavigation();
 
   const abrirEnlace = (url) => {
     Linking.openURL(url).catch((err) =>
       console.error("Error al abrir el enlace:", err)
-    );
-  };
-
-  const enviarCorreo = () => {
-    const email = "hodeicloud2020@gmail.com";
-    const subject = encodeURIComponent(
-      "Consulta sobre la aplicación HodeiCloud"
-    );
-    const body = encodeURIComponent("Hola, necesito ayuda con...");
-    const mailtoURL = `mailto:${email}?subject=${subject}&body=${body}`;
-
-    Linking.openURL(mailtoURL).catch((err) =>
-      console.error("Error al abrir el cliente de correo:", err)
     );
   };
 
@@ -108,23 +110,6 @@ const Ayuda = () => {
             prueba a reiniciar la aplicación.
           </Text>
 
-          <Text style={styles.subtitle}>Contacto</Text>
-          <View style={styles.contactContainer}>
-            <Text style={styles.text}>
-              Si necesitas ayuda, contacta con nuestro soporte en
-            </Text>
-            <TouchableOpacity
-              onPress={() =>
-                abrirEnlace("https://api.whatsapp.com/send?phone=34602216188")
-              }
-            >
-              <Image
-                source={require("../assets/whatsapp.png")}
-                style={styles.socialIcon}
-              />
-            </TouchableOpacity>
-          </View>
-
           <TouchableOpacity
             style={styles.button}
             onPress={() => navigation.goBack()}
@@ -137,43 +122,56 @@ const Ayuda = () => {
         <View style={styles.contentContainer}>
           <Text style={styles.subtitle}>Más sobre nosotros</Text>
           <View style={styles.socialIconsContainer}>
-            <TouchableOpacity
-              onPress={() =>
-                abrirEnlace("https://www.instagram.com/ihodeicloud")
-              }
-            >
+            <TouchableOpacity onPress={() => abrirEnlace(enlaces.instagram)}>
               <Image
                 source={require("../assets/instagram.png")}
                 style={styles.socialIcon}
               />
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => abrirEnlace("https://www.tiktok.com/@ihodeicloud")}
-            >
+            <TouchableOpacity onPress={() => abrirEnlace(enlaces.tiktok)}>
               <Image
                 source={require("../assets/tiktok.png")}
                 style={styles.socialIcon}
               />
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() =>
-                abrirEnlace("https://es.linkedin.com/company/ihodeicloud")
-              }
-            >
+            <TouchableOpacity onPress={() => abrirEnlace(enlaces.linkedin)}>
               <Image
                 source={require("../assets/linkedin.png")}
+                style={styles.socialIcon}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => abrirEnlace(enlaces.youtube)}>
+              <Image
+                source={require("../assets/youtube.png")}
+                style={styles.socialIcon}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => abrirEnlace(enlaces.facebook)}>
+              <Image
+                source={require("../assets/facebook.png")}
                 style={styles.socialIcon}
               />
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* Sección Más sobre Nosotros */}
+        {/* Sección Visita nuestra web */}
+        <View style={styles.contentContainer}>
+          <TouchableOpacity onPress={() => abrirEnlace(enlaces.web)}>
+            <Text style={styles.subtitle}>Visita nuestra web</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Sección Más aplicaciones */}
         <View style={styles.contentContainer}>
           <TouchableOpacity
-            onPress={() => abrirEnlace("https://hodeicloud.com/")}
+            onPress={() =>
+              abrirEnlace(
+                Platform.OS === "android" ? enlaces.android : enlaces.ios
+              )
+            }
           >
-            <Text style={styles.subtitle}>Visita nuestra web</Text>
+            <Text style={styles.subtitle}>Más aplicaciones</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
